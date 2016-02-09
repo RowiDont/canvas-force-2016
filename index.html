@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Canvas Force 2k16</title>
+    <script src="lib/bundle.js"></script>
+  </head>
+  <body>
+    <canvas></canvas>
+    <script type="text/javascript">
+      var canvasEl = document.getElementsByTagName("canvas")[0];
+        canvasEl.height = window.innerHeight;
+        canvasEl.width = window.innerWidth;
+      new CanvasForce.GameView(canvasEl).start();
+    </script>
+  </body>
+</html>
