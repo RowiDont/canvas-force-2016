@@ -10,6 +10,7 @@ function Sprite(options) {
   this.dir = options.dir || 'horizontal';
   this.once = options.once;
   this.remove = false;
+  this.removeWhenDone = options.removeWhenDone || false;
   this.rotation = options.rotation || null;
   this.subSprite = options.dependentSprite || null;
   this.offset = options.offset || null;

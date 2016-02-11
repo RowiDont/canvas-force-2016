@@ -58,7 +58,8 @@ resources.load([
   'img/ship_sprite1.png',
   'img/bullet.png',
   'img/sand-texture4.jpg',
-  'img/tank1.png'
+  'img/tank1.png',
+  'img/explosions2.png'
 ]);
 resources.onReady(init);
 
@@ -77,6 +78,7 @@ function init() {
 // Sprite options hash contains: url, pos, size, speed, frames, dir, once
 // dir is a vector of dx, dy
 var player = {
+  life: 100,
   pos: [20, 20],
   lastFire: Date.now(),
   sprite: new Sprite({
@@ -90,6 +92,7 @@ var player = {
 };
 
 var enemy = {
+  life: 40,
   pos: [40, 40],
   lastFire: Date.now(),
   sprite: new Sprite({
@@ -123,7 +126,7 @@ var score = 0,
     scoreEl = document.getElementById('score');
 
 var playerSpeed = 200,
-    enemySpeed = 0,
+    enemySpeed = -0,
     bulletSpeed = 400;
 
 function update (dt) {
@@ -158,6 +161,7 @@ function handleInput(dt) {
       var x = player.pos[0] + 21;
       var y = player.pos[1] - 14;
       bullets.push({
+        type: player,
         pos: [x, y],
         dir: [0, 1],
         sprite: new Sprite({
@@ -197,8 +201,13 @@ function updateEntities(dt) {
     enemy.sprite.update(dt);
     enemy.sprite.rotation = getRotation(enemy);
 
-    if (outOfBounds(enemies[i])) {
-      enemies[i].remove = true;
+    if (outOfBounds(enemy)) {
+      enemy.remove = true;
+    }
+
+    if (enemy.life <= 0) {
+      enemy.remove = true;
+      score += 100;
     }
   }
 
@@ -207,6 +216,10 @@ function updateEntities(dt) {
     explosions[i].sprite.update(dt);
 
     if (outOfBounds(explosions[i])) {
+      explosions[i].remove = true;
+    }
+
+    if (explosions[i].sprite.done && explosions[i].sprite.removeWhenDone) {
       explosions[i].remove = true;
     }
   }
@@ -218,8 +231,8 @@ function getRotation(enemy) {
   pos1 = enemy.pos;
   pos2 = player.pos;
 
-  dx = pos2[0] - pos1[0] + 30;
-  dy = pos2[1] - pos1[1] + 30;
+  dx = Math.abs(pos2[0] - pos1[0]) + 30;
+  dy = Math.abs(pos2[1] - pos1[1]) + 30;
 
   var deg = Math.atan(- dx / dy);
   return deg;
@@ -252,8 +265,59 @@ function outOfBounds(sprite) {
   return false;
 }
 
+function collides(x, y, r, b, x2, y2, r2, b2) {
+    return !(r <= x2 || x > r2 ||
+             b <= y2 || y > b2);
+}
+
+function boxCollides(pos, size, pos2, size2) {
+    return collides(pos[0], pos[1],
+                    pos[0] + size[0], pos[1] + size[1],
+                    pos2[0], pos2[1],
+                    pos2[0] + size2[0], pos2[1] + size2[1]);
+}
+
 function checkCollisions () {
   checkPlayerBounds();
+
+  for(var i=0; i<enemies.length; i++) {
+    var pos = [enemies[i].pos[0] - 25, enemies[i].pos[1] - 20];
+    var size = enemies[i].sprite.size;
+
+    for(var j=0; j<bullets.length; j++) {
+      var pos2 = bullets[j].pos;
+      var size2 = bullets[j].sprite.size;
+
+      if(boxCollides(pos, size, pos2, size2)) {
+        enemies[i].life -= 20;
+
+        // Add an explosion
+        explosions.push({
+          pos: pos,
+          sprite: new Sprite({
+            url: 'img/explosions2.png',
+            pos: [-4, 0],
+            size: [63.5, 61],
+            speed: 16,
+            frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+            dir: null,
+            once: true,
+            removeWhenDone: true
+          })
+        });
+
+        // Remove the bullet and stop this iteration
+        // bullets.splice(j, 1);
+        bullets[j].remove = true;
+        removeEntities();
+        break;
+      }
+  }
+
+  if(boxCollides(pos, size, player.pos, player.sprite.size)) {
+    gameOver();
+  }
+  }
 }
 
 function checkPlayerBounds () {
