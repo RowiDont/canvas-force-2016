@@ -60,7 +60,9 @@ resources.load([
   'img/bullet.png',
   'img/sand-texture4.jpg',
   'img/tank1.png',
-  'img/explosions2.png'
+  'img/explosions2.png',
+  'img/missile.png',
+  'img/missile_burst.png'
 ]);
 resources.onReady(init);
 
@@ -99,11 +101,16 @@ var player = {
   })
 };
 
+function resetPlayer() {
+  player.sprite.done = false;
+  player.sprite._index = 0;
+}
+
 function generateEnemy (type) {
   if (enemies.length < 5) {
     if (type === "tank") {
 
-      var position = getRandomPos([40, 10], [290, 50]);
+      var position = getRandomPos([40, -10], [290, -10]);
       while (enemyConflict(position, type)) {
         position = getRandomPos([40, 40], [290, 100]);
       }
@@ -112,7 +119,7 @@ function generateEnemy (type) {
         type: "tank",
         life: 40,
         pos: position,
-        lastFire: Date.now(),
+        lastFire: -2000,
         sprite: new Sprite({
           url: 'img/tank1.png',
           pos: [49, 0],
@@ -207,6 +214,7 @@ function handleInput(dt) {
         type: player,
         pos: [x, y],
         dir: [0, 1],
+        speed: 500,
         sprite: new Sprite({
           url: 'img/bullet.png',
           pos: [0, 0],
@@ -229,9 +237,8 @@ function updateEntities(dt) {
     // debugger
     var bullet = bullets[i];
 
-
-    bullet.pos[0] -= bulletSpeed * dt * bullet.dir[0];
-    bullet.pos[1] -= bulletSpeed * dt * bullet.dir[1];
+    bullet.pos[0] -= bullet.speed * dt * bullet.dir[0];
+    bullet.pos[1] -= bullet.speed * dt * bullet.dir[1];
 
     if (outOfBounds(bullet)) {
       bullet.remove = true;
@@ -245,6 +252,30 @@ function updateEntities(dt) {
     enemy.pos[1] -= enemySpeed * dt;
     enemy.sprite.update(dt);
     enemy.sprite.rotation = getRotation(enemy);
+
+    var angle = enemy.sprite.rotation;
+    bulletDir = [Math.sin(angle), -Math.cos(angle)];
+    if (!isGameOver &&
+    Date.now() - enemy.lastFire > 2000) {
+      var x = enemy.pos[0] + (Math.sin(angle));
+      var y = enemy.pos[1] - (Math.cos(angle));
+
+      bullets.push({
+        type: "enemy",
+        pos: [x, y],
+        dir: bulletDir,
+        speed: 200,
+        sprite: new Sprite({
+          url: 'img/missile_burst.png',
+          pos: [0, 0],
+          size: [23, 32],
+          rotation: angle,
+          flip: true
+        })
+      });
+
+      enemy.lastFire = Date.now();
+    }
 
     if (outOfBounds(enemy)) {
       enemy.remove = true;
@@ -276,10 +307,14 @@ function getRotation(enemy) {
   pos1 = enemy.pos;
   pos2 = player.pos;
 
-  dx = pos2[0] - pos1[0] + 30;
-  dy = pos2[1] - pos1[1] + 30;
+  dx = pos2[0] + 30 - pos1[0];
+  dy = pos2[1] + 30 - pos1[1];
 
   var deg = Math.atan(- dx / dy);
+
+  if (dy < 0) {
+    deg += Math.PI;
+  }
   return deg;
 }
 
@@ -299,10 +334,10 @@ function removeEntities() {
 }
 
 function outOfBounds(sprite) {
-  if (sprite.pos[1] < 0 ||
-      sprite.pos[1] > canvas.height ||
-      sprite.pos[0] > canvas.width ||
-      sprite.pos[0] < 0
+  if (sprite.pos[1] < -50 ||
+      sprite.pos[1] > canvas.height + 20 ||
+      sprite.pos[0] > canvas.width + 20 ||
+      sprite.pos[0] < -50
     ) {
     return true;
   }
@@ -331,6 +366,8 @@ function checkCollisions () {
     for(var j=0; j<bullets.length; j++) {
       var pos2 = bullets[j].pos;
       var size2 = bullets[j].sprite.size;
+
+      if (bullets[j].type === "enemy") { continue; }
 
       if(boxCollides(pos, size, pos2, size2)) {
         enemies[i].life -= 20;
@@ -457,6 +494,6 @@ function reset() {
 
   enemies = [];
   bullets = [];
-
+  resetPlayer();
   player.pos = [canvas.width/2 - 21, canvas.height - 80];
 }

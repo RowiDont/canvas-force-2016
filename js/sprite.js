@@ -14,6 +14,7 @@ function Sprite(options) {
   this.rotation = options.rotation || null;
   this.subSprite = options.dependentSprite || null;
   this.offset = options.offset || null;
+  this.flip = options.flip || null;
 }
 
 Sprite.prototype.update = function (dt) {
@@ -48,9 +49,15 @@ Sprite.prototype.render = function (ctx) {
   }
 
   if (this.rotation) {
-    this.subSprite.render(ctx);
+    if (this.subSprite) {
+      this.subSprite.render(ctx);
+    }
     ctx.rotate(this.rotation);
     ctx.translate(-this.size[0]/2, -this.size[1]/2);
+  }
+
+  if (this.flip) {
+    ctx.translate(0, this.size[1]);
   }
 
   if (this.offset) {
