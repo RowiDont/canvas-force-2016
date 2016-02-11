@@ -6,13 +6,26 @@
     <link rel="stylesheet" href="css/app.css">
   </head>
   <body>
+    <h1>Canvas Force 2016 - Made with love by Rafael Patel</h1>
     <div id="game-over-overlay"></div>
     <div id="game-over">
       <h1>GAME OVER</h1>
       <button id="play-again">Play Again</button>
     </div>
 
-    <div id="score"></div>
+    <div class="wrapper">
+      <h3>Controls</h3>
+      <div id="instructions">
+        <div>
+          move with <span class="key">arrows</span> or <span class="key">wasd</span>
+        </div>
+        <div>
+          shoot with <span class="key">space</span>
+        </div>
+      </div>
+
+      <div id="score"></div>
+    </div>
 
     <script type="text/javascript" src="js/resources.js"></script>
     <script type="text/javascript" src="js/input.js"></script>

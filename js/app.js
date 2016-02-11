@@ -46,7 +46,8 @@ var lastTime;
 function main() {
   var now = Date.now();
   var dt = (now - lastTime) / 1000.0;
-  enemies.push(enemy);
+
+
   update(dt);
   render();
 
@@ -70,7 +71,17 @@ function init() {
     reset();
   });
 
+
+
   reset();
+
+  window.intervalId = setInterval(
+    function () {
+       generateEnemy("tank");
+    },
+    3000
+  );
+
   lastTime = Date.now();
   main();
 }
@@ -91,29 +102,66 @@ var player = {
   })
 };
 
-var enemy = {
-  life: 40,
-  pos: [40, 40],
-  lastFire: Date.now(),
-  sprite: new Sprite({
-    url: 'img/tank1.png',
-    pos: [49, 0],
-    size: [49, 90],
-    speed: 10,
-    frames: [0],
-    once: true,
-    enemyPos: player.pos,
-    dependentSprite: new Sprite({
-      url: 'img/tank1.png',
-      pos: [0, 0],
-      size: [49, 90],
-      speed: 0,
-      frames: [0],
-      once: true,
-      offset: [-27, -25]
-    })
-  })
-};
+// var enemy = {
+//   life: 40,
+//   pos: [40, 40],
+//   lastFire: Date.now(),
+//   sprite: new Sprite({
+//     url: 'img/tank1.png',
+//     pos: [49, 0],
+//     size: [49, 90],
+//     speed: 10,
+//     frames: [0],
+//     once: true,
+//     enemyPos: player.pos,
+//     dependentSprite: new Sprite({
+//       url: 'img/tank1.png',
+//       pos: [0, 0],
+//       size: [49, 90],
+//       speed: 0,
+//       frames: [0],
+//       once: true,
+//       offset: [-27, -25]
+//     })
+//   })
+// };
+
+function generateEnemy (type) {
+  if (type === "tank") {
+    var position = getRandomPos([40, 40], [290, 100]);
+    var tank = ({
+      life: 40,
+      pos: position,
+      lastFire: Date.now(),
+      sprite: new Sprite({
+        url: 'img/tank1.png',
+        pos: [49, 0],
+        size: [49, 90],
+        speed: 10,
+        frames: [0],
+        once: true,
+        enemyPos: player.pos,
+        dependentSprite: new Sprite({
+          url: 'img/tank1.png',
+          pos: [0, 0],
+          size: [49, 90],
+          speed: 0,
+          frames: [0],
+          once: true,
+          offset: [-27, -25]
+        })
+      })
+    });
+    enemies.push(tank);
+  }
+}
+
+function getRandomPos(bound1, bound2) {
+  var x = (Math.random() * (bound2[0] - bound1[0])) + bound1[0];
+  var y = (Math.random() * (bound2[1] - bound1[1])) + bound1[1];
+
+  return [x, y];
+}
 
 var bullets = [],
     enemies = [],
@@ -197,6 +245,7 @@ function updateEntities(dt) {
   // update enemy position
   for (i = 0; i < enemies.length; i++) {
     var enemy = enemies[i];
+    if (enemy.remove) { continue; }
     enemy.pos[1] -= enemySpeed * dt;
     enemy.sprite.update(dt);
     enemy.sprite.rotation = getRotation(enemy);
@@ -206,8 +255,8 @@ function updateEntities(dt) {
     }
 
     if (enemy.life <= 0) {
-      enemy.remove = true;
       score += 100;
+      enemy.remove = true;
     }
   }
 
@@ -231,8 +280,8 @@ function getRotation(enemy) {
   pos1 = enemy.pos;
   pos2 = player.pos;
 
-  dx = Math.abs(pos2[0] - pos1[0]) + 30;
-  dy = Math.abs(pos2[1] - pos1[1]) + 30;
+  dx = pos2[0] - pos1[0] + 30;
+  dy = pos2[1] - pos1[1] + 30;
 
   var deg = Math.atan(- dx / dy);
   return deg;
@@ -245,7 +294,7 @@ function removeEntities() {
   for (i = 0; i < list.length; i++) {
     var item = list[i];
     for (var j = 0; j < item.length; j++) {
-      if (item[j].remove) {
+      if (item[j].remove === true) {
         item.splice(j, 1);
         j--;
       }
@@ -281,7 +330,7 @@ function checkCollisions () {
   checkPlayerBounds();
 
   for(var i=0; i<enemies.length; i++) {
-    var pos = [enemies[i].pos[0] - 25, enemies[i].pos[1] - 20];
+    var pos = [enemies[i].pos[0] - 30, enemies[i].pos[1] - 30];
     var size = enemies[i].sprite.size;
 
     for(var j=0; j<bullets.length; j++) {
@@ -376,10 +425,22 @@ function gameOver() {
   document.getElementById('game-over').style.display = 'block';
   document.getElementById('game-over-overlay').style.display = 'block';
   isGameOver = true;
+  window.clearInterval(intervalId);
 }
 
 // Reset game to original state
 function reset() {
+  if (window.intervalId) {
+    window.clearInterval(intervalId);
+    window.intervalId = setInterval(
+      function () {
+        generateEnemy("tank");
+      },
+      3000
+    );
+  }
+
+
   document.getElementById('game-over').style.display = 'none';
   document.getElementById('game-over-overlay').style.display = 'none';
   isGameOver = false;
