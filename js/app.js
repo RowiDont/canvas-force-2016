@@ -95,6 +95,7 @@ var player = {
     url: 'img/ship_sprite1.png',
     pos: [0, 0],
     size: [49, 42],
+    fakeSize: [25, 25],
     speed: 10,
     frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
     once: true
@@ -367,12 +368,43 @@ function checkCollisions () {
       var pos2 = bullets[j].pos;
       var size2 = bullets[j].sprite.size;
 
+      // Bullet - player collision
+      if (bullets[j].type === "enemy") {
+        fakePlayerX = player.pos[0] + 20;
+        fakePlayerY = player.pos[1] + 10;
+        var playerPos = [fakePlayerX, fakePlayerY];
+        var fakePlayerSx = player.sprite.size[0] / 2;
+        var fakePlayerSy = player.sprite.size[1] / 2 - 7;
+        fakePlayerSize = [fakePlayerSx, fakePlayerSy];
+        if(boxCollides(playerPos, fakePlayerSize, pos2, size2)) {
+          gameOver();
+          explosions.push({
+            pos: player.pos,
+            sprite: new Sprite({
+              url: 'img/explosions2.png',
+              pos: [-4, 0],
+              size: [63.5, 61],
+              speed: 16,
+              frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+              dir: null,
+              once: true,
+              removeWhenDone: true
+            })
+          });
+          bullets[j].remove = true;
+          removeEntities();
+          break;
+        }
+
+      }
+
+      // After that check, go to next bullet if this ones and enemy
       if (bullets[j].type === "enemy") { continue; }
 
+      // Bullet-enemy collision
       if(boxCollides(pos, size, pos2, size2)) {
         enemies[i].life -= 20;
 
-        // Add an explosion
         explosions.push({
           pos: pos,
           sprite: new Sprite({
@@ -393,24 +425,25 @@ function checkCollisions () {
         removeEntities();
         break;
       }
-  }
+    }
 
-  if(boxCollides(pos, size, player.pos, player.sprite.size)) {
-    gameOver();
-    explosions.push({
-      pos: player.pos,
-      sprite: new Sprite({
-        url: 'img/explosions2.png',
-        pos: [-4, 0],
-        size: [63.5, 61],
-        speed: 16,
-        frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
-        dir: null,
-        once: true,
-        removeWhenDone: true
-      })
-    });
-  }
+    // Tank-enemy collision
+    if(boxCollides(pos, size, player.pos, player.sprite.size)) {
+      gameOver();
+      explosions.push({
+        pos: player.pos,
+        sprite: new Sprite({
+          url: 'img/explosions2.png',
+          pos: [-4, 0],
+          size: [63.5, 61],
+          speed: 16,
+          frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+          dir: null,
+          once: true,
+          removeWhenDone: true
+        })
+      });
+    }
   }
 }
 

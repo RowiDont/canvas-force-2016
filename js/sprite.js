@@ -15,6 +15,7 @@ function Sprite(options) {
   this.subSprite = options.dependentSprite || null;
   this.offset = options.offset || null;
   this.flip = options.flip || null;
+  // this.fakeSize = options.fakeSize || null;
 }
 
 Sprite.prototype.update = function (dt) {
