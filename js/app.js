@@ -56,11 +56,14 @@ function main() {
 
 resources.load([
   'img/ship_sprite1.png',
-  'img/bullet.png'
+  'img/bullet.png',
+  'img/sand-texture4.jpg'
 ]);
 resources.onReady(init);
 
 function init() {
+  terrainPattern = ctx.createPattern(resources.get('img/sand-texture4.jpg'), 'repeat');
+
   document.getElementById('play-again').addEventListener('click', function () {
     reset();
   });
@@ -233,9 +236,16 @@ function checkPlayerBounds () {
   }
 }
 
+var offset_y = 0;
+
 function render () {
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  offset_y += 3;
+  ctx.translate(0, offset_y);
+
+  ctx.fillStyle = terrainPattern;
+  ctx.fillRect(0, -offset_y, canvas.width, canvas.height);
+
+  ctx.translate(0, -offset_y);
 
   if(!isGameOver) {
     renderEntity(player);
