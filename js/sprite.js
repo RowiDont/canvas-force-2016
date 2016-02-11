@@ -1,5 +1,5 @@
 // SPRITE OBJECT
-// options hash contains: url, pos, size, speed, frames, dir, once
+// options hash contains: url, pos, size, speed, frames, dir, once, rotation
 function Sprite(options) {
   this.pos = options.pos;
   this.size = options.size;
@@ -10,6 +10,9 @@ function Sprite(options) {
   this.dir = options.dir || 'horizontal';
   this.once = options.once;
   this.remove = false;
+  this.rotation = options.rotation || null;
+  this.subSprite = options.dependentSprite || null;
+  this.offset = options.offset || null;
 }
 
 Sprite.prototype.update = function (dt) {
@@ -17,7 +20,7 @@ Sprite.prototype.update = function (dt) {
 };
 
 Sprite.prototype.render = function (ctx) {
-  // debugger
+
   var frame;
   if (this.done) {
     frame = this.frames.length - 1;
@@ -43,11 +46,34 @@ Sprite.prototype.render = function (ctx) {
     x += frame * this.size[0];
   }
 
-  ctx.drawImage(
-    resources.get(this.url),
-    x, y,
-    this.size[0], this.size[1],
-    0, 0,
-    this.size[0], this.size[1]
-  );
+  if (this.rotation) {
+    this.subSprite.render(ctx);
+    ctx.rotate(this.rotation);
+    ctx.translate(-this.size[0]/2, -this.size[1]/2);
+  }
+
+  if (this.offset) {
+    ctx.drawImage(
+      resources.get(this.url),
+      x, y,
+      this.size[0], this.size[1],
+      this.offset[0], this.offset[1],
+      this.size[0], this.size[1]
+    );
+  } else {
+    ctx.drawImage(
+      resources.get(this.url),
+      x, y,
+      this.size[0], this.size[1],
+      0, 0,
+      this.size[0], this.size[1]
+    );
+  }
+  //
+  // if (this.rotation) {
+  //   ctx.rotate(-this.rotation);
+  //   // ctx.translate(+this.size[1]/2, +this.size[0]/2);
+  // }
+
+  // ctx.restore();
 };

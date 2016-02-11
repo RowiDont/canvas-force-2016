@@ -46,7 +46,7 @@ var lastTime;
 function main() {
   var now = Date.now();
   var dt = (now - lastTime) / 1000.0;
-
+  enemies.push(enemy);
   update(dt);
   render();
 
@@ -57,7 +57,8 @@ function main() {
 resources.load([
   'img/ship_sprite1.png',
   'img/bullet.png',
-  'img/sand-texture4.jpg'
+  'img/sand-texture4.jpg',
+  'img/tank1.png'
 ]);
 resources.onReady(init);
 
@@ -76,7 +77,7 @@ function init() {
 // Sprite options hash contains: url, pos, size, speed, frames, dir, once
 // dir is a vector of dx, dy
 var player = {
-  pos: [0, 0],
+  pos: [20, 20],
   lastFire: Date.now(),
   sprite: new Sprite({
     url: 'img/ship_sprite1.png',
@@ -85,6 +86,29 @@ var player = {
     speed: 10,
     frames: [0, 1, 2, 3, 4, 5, 6, 7, 8],
     once: true
+  })
+};
+
+var enemy = {
+  pos: [40, 40],
+  lastFire: Date.now(),
+  sprite: new Sprite({
+    url: 'img/tank1.png',
+    pos: [49, 0],
+    size: [49, 90],
+    speed: 10,
+    frames: [0],
+    once: true,
+    enemyPos: player.pos,
+    dependentSprite: new Sprite({
+      url: 'img/tank1.png',
+      pos: [0, 0],
+      size: [49, 90],
+      speed: 0,
+      frames: [0],
+      once: true,
+      offset: [-27, -25]
+    })
   })
 };
 
@@ -99,6 +123,7 @@ var score = 0,
     scoreEl = document.getElementById('score');
 
 var playerSpeed = 200,
+    enemySpeed = 0,
     bulletSpeed = 400;
 
 function update (dt) {
@@ -160,8 +185,6 @@ function updateEntities(dt) {
     bullet.pos[0] -= bulletSpeed * dt * bullet.dir[0];
     bullet.pos[1] -= bulletSpeed * dt * bullet.dir[1];
 
-    console.log(bullet.pos[1]);
-
     if (outOfBounds(bullet)) {
       bullet.remove = true;
     }
@@ -169,8 +192,10 @@ function updateEntities(dt) {
 
   // update enemy position
   for (i = 0; i < enemies.length; i++) {
-    enemies[i].pos[1] -= enemySpeed * dt;
-    enemies.sprite.update(dt);
+    var enemy = enemies[i];
+    enemy.pos[1] -= enemySpeed * dt;
+    enemy.sprite.update(dt);
+    enemy.sprite.rotation = getRotation(enemy);
 
     if (outOfBounds(enemies[i])) {
       enemies[i].remove = true;
@@ -187,6 +212,17 @@ function updateEntities(dt) {
   }
 
   removeEntities();
+}
+
+function getRotation(enemy) {
+  pos1 = enemy.pos;
+  pos2 = player.pos;
+
+  dx = pos2[0] - pos1[0] + 30;
+  dy = pos2[1] - pos1[1] + 30;
+
+  var deg = Math.atan(- dx / dy);
+  return deg;
 }
 
 function removeEntities() {
@@ -266,6 +302,7 @@ function renderEntities(list) {
 function renderEntity(entity) {
   ctx.save();
   ctx.translate(entity.pos[0], entity.pos[1]);
+
   entity.sprite.render(ctx);
   ctx.restore();
 }
