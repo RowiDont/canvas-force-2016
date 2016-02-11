@@ -70,16 +70,13 @@ function init() {
   document.getElementById('play-again').addEventListener('click', function () {
     reset();
   });
-
-
-
   reset();
 
   window.intervalId = setInterval(
     function () {
        generateEnemy("tank");
     },
-    3000
+    1500
   );
 
   lastTime = Date.now();
@@ -102,58 +99,54 @@ var player = {
   })
 };
 
-// var enemy = {
-//   life: 40,
-//   pos: [40, 40],
-//   lastFire: Date.now(),
-//   sprite: new Sprite({
-//     url: 'img/tank1.png',
-//     pos: [49, 0],
-//     size: [49, 90],
-//     speed: 10,
-//     frames: [0],
-//     once: true,
-//     enemyPos: player.pos,
-//     dependentSprite: new Sprite({
-//       url: 'img/tank1.png',
-//       pos: [0, 0],
-//       size: [49, 90],
-//       speed: 0,
-//       frames: [0],
-//       once: true,
-//       offset: [-27, -25]
-//     })
-//   })
-// };
-
 function generateEnemy (type) {
-  if (type === "tank") {
-    var position = getRandomPos([40, 40], [290, 100]);
-    var tank = ({
-      life: 40,
-      pos: position,
-      lastFire: Date.now(),
-      sprite: new Sprite({
-        url: 'img/tank1.png',
-        pos: [49, 0],
-        size: [49, 90],
-        speed: 10,
-        frames: [0],
-        once: true,
-        enemyPos: player.pos,
-        dependentSprite: new Sprite({
+  if (enemies.length < 5) {
+    if (type === "tank") {
+
+      var position = getRandomPos([40, 10], [290, 50]);
+      while (enemyConflict(position, type)) {
+        position = getRandomPos([40, 40], [290, 100]);
+      }
+
+      var tank = ({
+        type: "tank",
+        life: 40,
+        pos: position,
+        lastFire: Date.now(),
+        sprite: new Sprite({
           url: 'img/tank1.png',
-          pos: [0, 0],
+          pos: [49, 0],
           size: [49, 90],
-          speed: 0,
+          speed: 10,
           frames: [0],
           once: true,
-          offset: [-27, -25]
+          enemyPos: player.pos,
+          dependentSprite: new Sprite({
+            url: 'img/tank1.png',
+            pos: [0, 0],
+            size: [49, 90],
+            speed: 0,
+            frames: [0],
+            once: true,
+            offset: [-27, -25]
+          })
         })
-      })
-    });
-    enemies.push(tank);
+      });
+      enemies.push(tank);
+    }
   }
+}
+
+function enemyConflict(position, type) {
+  var size1;
+  if (type === "tank") {
+    size1 = [49, 90];
+  }
+  // debugger
+  var value = enemies.some(function (el) {
+    return boxCollides(position, size1, el.pos, el.sprite.size);
+  }, this);
+  return value;
 }
 
 function getRandomPos(bound1, bound2) {
@@ -165,6 +158,7 @@ function getRandomPos(bound1, bound2) {
 
 var bullets = [],
     enemies = [],
+    enemyPos = [],
     explosions = [];
 
 var gameTime = 0,
@@ -174,7 +168,7 @@ var score = 0,
     scoreEl = document.getElementById('score');
 
 var playerSpeed = 200,
-    enemySpeed = -0,
+    enemySpeed = -80,
     bulletSpeed = 400;
 
 function update (dt) {
@@ -187,23 +181,24 @@ function update (dt) {
 }
 
 function handleInput(dt) {
-  if(input.isDown('DOWN') || input.isDown('s')) {
-    player.pos[1] += playerSpeed * dt;
-  }
+  if (!isGameOver) {
+    if(input.isDown('DOWN') || input.isDown('s')) {
+      player.pos[1] += playerSpeed * dt;
+    }
 
-  if(input.isDown('UP') || input.isDown('w')) {
-    player.pos[1] -= playerSpeed * dt;
-  }
+    if(input.isDown('UP') || input.isDown('w')) {
+      player.pos[1] -= playerSpeed * dt;
+    }
 
-  if(input.isDown('LEFT') || input.isDown('a')) {
-    player.pos[0] -= playerSpeed * dt;
-  }
+    if(input.isDown('LEFT') || input.isDown('a')) {
+      player.pos[0] -= playerSpeed * dt;
+    }
 
-  if(input.isDown('RIGHT') || input.isDown('d')) {
-    player.pos[0] += playerSpeed * dt;
-  }
+    if(input.isDown('RIGHT') || input.isDown('d')) {
+      player.pos[0] += playerSpeed * dt;
+    }
 
-  if(input.isDown('SPACE') &&
+    if(input.isDown('SPACE') &&
     !isGameOver &&
     Date.now() - player.lastFire > 200) {
       var x = player.pos[0] + 21;
@@ -220,6 +215,7 @@ function handleInput(dt) {
       });
 
       player.lastFire = Date.now();
+    }
   }
 }
 
@@ -295,12 +291,11 @@ function removeEntities() {
     var item = list[i];
     for (var j = 0; j < item.length; j++) {
       if (item[j].remove === true) {
-        item.splice(j, 1);
+        list[i].splice(j, 1);
         j--;
       }
     }
   }
-
 }
 
 function outOfBounds(sprite) {
@@ -365,6 +360,19 @@ function checkCollisions () {
 
   if(boxCollides(pos, size, player.pos, player.sprite.size)) {
     gameOver();
+    explosions.push({
+      pos: player.pos,
+      sprite: new Sprite({
+        url: 'img/explosions2.png',
+        pos: [-4, 0],
+        size: [63.5, 61],
+        speed: 16,
+        frames: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        dir: null,
+        once: true,
+        removeWhenDone: true
+      })
+    });
   }
   }
 }
@@ -436,7 +444,7 @@ function reset() {
       function () {
         generateEnemy("tank");
       },
-      3000
+      1500
     );
   }
 
