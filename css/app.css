@@ -41,13 +41,38 @@ h3 {
   color: #757575;
 }
 
+.group:after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+.container {
+  width: 320px;
+  margin: auto;
+}
+
 #score {
   color: black;
   font-size: 2em;
+  float: left;
+}
+
+#life {
+  font-size: 2em;
+  float: right;
+}
+
+#life:before {
+  content: "life: ";
 }
 
 #score:before {
-  content: "score: "
+  content: "score: ";
+}
+
+.red {
+  color: red;
 }
 
 .key {

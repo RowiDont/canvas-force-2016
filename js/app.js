@@ -88,7 +88,7 @@ function init() {
 // Sprite options hash contains: url, pos, size, speed, frames, dir, once
 // dir is a vector of dx, dy
 var player = {
-  life: 100,
+  life: 40,
   pos: [20, 20],
   lastFire: Date.now(),
   sprite: new Sprite({
@@ -103,6 +103,8 @@ var player = {
 };
 
 function resetPlayer() {
+  lifeEl.className = "";
+  player.life = 80;
   player.sprite.done = false;
   player.sprite._index = 0;
 }
@@ -175,6 +177,9 @@ var gameTime = 0,
 var score = 0,
     scoreEl = document.getElementById('score');
 
+var life = 100,
+    lifeEl = document.getElementById('life');
+
 var playerSpeed = 200,
     enemySpeed = -80,
     bulletSpeed = 400;
@@ -186,6 +191,11 @@ function update (dt) {
   updateEntities(dt);
 
   scoreEl.innerHTML = score;
+  lifeEl.innerHTML = player.life;
+
+  if (player.life <= 40) {
+    lifeEl.setAttribute("class", "red");
+  }
 }
 
 function handleInput(dt) {
@@ -265,7 +275,7 @@ function updateEntities(dt) {
         type: "enemy",
         pos: [x, y],
         dir: bulletDir,
-        speed: 200,
+        speed: 800,
         sprite: new Sprite({
           url: 'img/missile_burst.png',
           pos: [0, 0],
@@ -377,7 +387,10 @@ function checkCollisions () {
         var fakePlayerSy = player.sprite.size[1] / 2 - 7;
         fakePlayerSize = [fakePlayerSx, fakePlayerSy];
         if(boxCollides(playerPos, fakePlayerSize, pos2, size2)) {
-          gameOver();
+          player.life -= 20;
+          if (player.life <= 0) {
+            gameOver();
+          }
           explosions.push({
             pos: player.pos,
             sprite: new Sprite({
