@@ -100,7 +100,7 @@ h3 {
 
 #game-over-overlay {
   background-color: black;
-  opacity: .7;
+  opacity: .85;
   width: 100%;
   height: 100%;
 }
