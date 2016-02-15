@@ -107,7 +107,11 @@ h3 {
 #game-over {
   text-align: center;
   color: white;
-  margin-top: 250px;
+  margin-top: 50px;
+}
+
+#game-over a {
+  color: blue;
 }
 
 #game-over h1 {
