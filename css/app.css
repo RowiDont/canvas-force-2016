@@ -111,7 +111,7 @@ h3 {
   margin-top: 50px;
 }
 
-#game-over a {
+a {
   color: blue;
 }
 
@@ -129,4 +129,15 @@ button {
   padding: 10px;
   border-radius: 5%;
   background: red;
+}
+
+#start {
+  margin: 20px;
+  background: blue;
+  font-size: 36px;
+  color: yellow;
+}
+
+.hidden {
+  display: none;
 }

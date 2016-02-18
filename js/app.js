@@ -42,6 +42,7 @@ if (!isMobile.any()) {
 }
 document.body.appendChild(canvas);
 
+
 var lastTime;
 function main() {
   var now = Date.now();
@@ -64,7 +65,21 @@ resources.load([
   'img/missile.png',
   'img/missile_burst.png'
 ]);
-resources.onReady(init);
+resources.onReady(displayStart);
+
+function displayStart () {
+  terrainPattern = ctx.createPattern(resources.get('img/sand-texture4.jpg'), 'repeat');
+  ctx.fillStyle = terrainPattern;
+  ctx.fillRect(0,0,canvas.width, canvas.height);
+  document.getElementById("start").className = "";
+  document.getElementById("start").addEventListener('click', function (e) {
+    init();
+    document.getElementById("start").className = "hidden";
+    document.getElementById("scorecard").className = "group container";
+  });
+}
+
+
 
 function init() {
   terrainPattern = ctx.createPattern(resources.get('img/sand-texture4.jpg'), 'repeat');
