@@ -3,12 +3,19 @@
   <head>
     <meta charset="utf-8">
     <title>Canvas Force 2k16</title>
+    <script src="js/jquery-2.2.1.min.js"></script>
     <link rel="stylesheet" href="css/app.css">
   </head>
   <body>
     <div id="game-over-overlay"></div>
     <div id="game-over">
       <h1>GAME OVER</h1>
+      <table id="leaderboard">
+        <tr class="leaderboard-header">
+          <td>Name</td>
+          <td>Score</td>
+        </tr>
+      </table>
       <button id="play-again">Play Again</button>
       <h1><a href="http://rowidont.github.io">Portfolio</a></h1>
       <h1><a href="http://github.com/rowidont/canvas-force-2016">Github</a></h1>
@@ -37,6 +44,8 @@
       <button id="start" class="hidden">Start</button>
     </div>
 
+
+    <script type="text/javascript" src="js/leaderboard.js"></script>
     <script type="text/javascript" src="js/resources.js"></script>
     <script type="text/javascript" src="js/input.js"></script>
     <script type="text/javascript" src="js/sprite.js"></script>

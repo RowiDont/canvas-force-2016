@@ -141,3 +141,22 @@ button {
 .hidden {
   display: none;
 }
+
+#leaderboard {
+  margin: auto;
+  text-align: left;
+}
+
+.leaderboard-header td {
+  font-size: 34px;
+}
+
+tr td:first-of-type {
+  width: 150px;
+  padding-right: 10px;
+}
+
+tr td {
+  width: 80px;
+  font-size: 24px;
+}
