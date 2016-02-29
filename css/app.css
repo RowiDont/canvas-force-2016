@@ -108,7 +108,7 @@ h3 {
 #game-over {
   text-align: center;
   color: white;
-  margin-top: 50px;
+  margin-top: 25px;
 }
 
 a {
@@ -117,6 +117,7 @@ a {
 
 #game-over h1 {
   font-size: 4em;
+  margin: 10px 0 10px 0;
 }
 
 #game-over button {
@@ -145,6 +146,7 @@ button {
 #leaderboard {
   margin: auto;
   text-align: left;
+  margin-bottom: 20px;
 }
 
 .leaderboard-header td {
@@ -159,4 +161,17 @@ tr td:first-of-type {
 tr td {
   width: 80px;
   font-size: 24px;
+}
+
+form input {
+  padding: 10px;
+  width: 400px;
+  font-size: 18px;
+}
+
+form button {
+  display: block;
+  margin: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }

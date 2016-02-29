@@ -68,6 +68,7 @@ resources.load([
 resources.onReady(displayStart);
 
 function displayStart () {
+  var scores = ajax.getScores(addToTable);
   terrainPattern = ctx.createPattern(resources.get('img/sand-texture4.jpg'), 'repeat');
   ctx.fillStyle = terrainPattern;
   ctx.fillRect(0,0,canvas.width, canvas.height);
