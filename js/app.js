@@ -68,7 +68,6 @@ resources.load([
 resources.onReady(displayStart);
 
 function displayStart () {
-  var scores = ajax.getScores(addToTable);
   terrainPattern = ctx.createPattern(resources.get('img/sand-texture4.jpg'), 'repeat');
   ctx.fillStyle = terrainPattern;
   ctx.fillRect(0,0,canvas.width, canvas.height);
@@ -83,10 +82,13 @@ function displayStart () {
 
 
 function init() {
+  var scores = ajax.getScores(addToTable);
+
   terrainPattern = ctx.createPattern(resources.get('img/sand-texture4.jpg'), 'repeat');
 
   document.getElementById('play-again').addEventListener('click', function () {
-    reset();
+    $("#sendScore").removeClass("hidden");
+    window.location.reload();
   });
   reset();
 
@@ -537,6 +539,7 @@ function gameOver() {
 
 // Reset game to original state
 function reset() {
+
   if (window.intervalId) {
     window.clearInterval(intervalId);
     window.intervalId = setInterval(

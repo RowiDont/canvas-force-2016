@@ -18,8 +18,9 @@ var ajax = {
         type: 'POST',
         dataType: 'json',
         data: {name: name, score: score},
-        success: function(data) {
-          console.log("yoooo");
+        success: function() {
+          console.log("I got here");
+          document.location.reload(true);
         }
       });
     }
@@ -32,10 +33,11 @@ $("#scoreSubmit").on('click', function(e) {
   var name = $("input")[0].value;
   var score = parseInt(scoreEl.innerHTML);
   ajax.sendScore(name, score);
+  $(e.currentTarget.parentNode).toggleClass('hidden');
 });
 
-var addToTable = function (scores) {
 
+var addToTable = function (scores) {
   scoresList = scores.reverse();
 
   scoresList.forEach(function (el, idx) {
@@ -44,6 +46,7 @@ var addToTable = function (scores) {
     var num = scores.length - parseInt(idx);
 
     var html = "<tr><td>" + num + ". " + name + "</td><td>" + score + "</td></tr>";
+
     $(html).insertAfter(table);
   }, this);
 };
